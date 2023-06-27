@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://cpbmtj46nunvx"]
+
+[ext_resource type="Script" path="res://Scripts/CardBase.cs" id="1_qqpa4"]
+
+[node name="CardBase" type="MarginContainer"]
+offset_right = 250.0
+offset_bottom = 350.0
+pivot_offset = Vector2(125, 175)
+script = ExtResource("1_qqpa4")
+
+[node name="Background" type="Sprite2D" parent="."]
+centered = false
+
+[node name="Foreground" type="Sprite2D" parent="."]
+centered = false
