@@ -1,4 +1,5 @@
 using Godot;
+using RobotPartyGameJam.Scripts;
 using System;
 using System.Diagnostics;
 
@@ -11,7 +12,13 @@ public partial class CardBase : MarginContainer
 	{
 		_CardData = CardHelper.Data[(int)CardReference.Test];
 
-		var backgroundTexture = ResourceLoader.Load<Texture2D>(_CardData.BackgroundAsset);
+		//Stops the code here if we mess up data entry
+		Debug.Assert(CardHelper.Arts.Length > (int)_CardData.BackgroundAsset);
+		Debug.Assert(CardHelper.Arts.Length > (int)_CardData.MiddlegroundAsset);
+		Debug.Assert(CardHelper.Arts.Length > (int)_CardData.ForegroundAsset);
+
+		var backgroundAsset = CardHelper.Arts[(int)_CardData.BackgroundAsset];
+		var backgroundTexture = ResourceLoader.Load<Texture2D>(backgroundAsset);
 		if(backgroundTexture == null)
 			GD.Print("No background: " + _CardData.BackgroundAsset);
 		var backgroundSprite = (Sprite2D)this.FindChild("Background", false);
@@ -19,13 +26,32 @@ public partial class CardBase : MarginContainer
 		var size = this.GetRect().Size;
 		backgroundSprite.Scale = size / backgroundTexture.GetSize();
 
-		var foregroundTexture = ResourceLoader.Load<Texture2D>(_CardData.ForegroundAsset);
-		if (foregroundTexture == null)
-			GD.Print("No foreground: " + _CardData.ForegroundAsset);
-		var foregroundSprite = (Sprite2D)this.FindChild("Foreground", false);
-		foregroundSprite.Texture = foregroundTexture;
+		var middleGroundAsset = CardHelper.Arts[(int)_CardData.MiddlegroundAsset];
+		var middlegroundTexture = ResourceLoader.Load<Texture2D>(middleGroundAsset);
+		if (middlegroundTexture == null)
+			GD.Print("No middleground: " + _CardData.MiddlegroundAsset);
+		var middlegroundSprite = (Sprite2D)this.FindChild("Middleground", false);
+		middlegroundSprite.Texture = middlegroundTexture;
 		size = this.GetRect().Size;
-		foregroundSprite.Scale = size / foregroundTexture.GetSize();
+		middlegroundSprite.Scale = size / middlegroundTexture.GetSize();
+
+		var foreGroundAsset = CardHelper.Arts[(int)_CardData.ForegroundAsset];
+		var foregroundTexture = ResourceLoader.Load<Texture2D>(foreGroundAsset);
+		if (foregroundTexture == null)
+			GD.Print("No middleground: " + _CardData.ForegroundAsset);
+		var foregroundSprite = (TextureRect)this.FindChild("TextureRect", true);
+		foregroundSprite.Texture = foregroundTexture;
+		//size = this.GetRect().Size;
+		//foregroundSprite.Scale = size / foregroundTexture.GetSize();
+
+		var nameLabel = (Label)this.FindChild("Label_Name", true);
+		nameLabel.Text = _CardData.Name;
+
+		var costLabel = (Label)this.FindChild("Label_Cost", true);
+		costLabel.Text = _CardData.Cost.ToString();
+
+		var abilityLabel = (Label)this.FindChild("Label_Ability", true);
+		abilityLabel.Text = _CardData.AbilityText;
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
