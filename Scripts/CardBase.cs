@@ -10,7 +10,10 @@ public partial class CardBase : MarginContainer
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		_CardData = CardHelper.Data[(int)CardReference.Test];
+		//TEST
+		CardHelper.ExportToCsv();
+
+		_CardData = CardHelper.GetCard(CardReference.Test);
 
 		//Stops the code here if we mess up data entry
 		Debug.Assert(CardHelper.Arts.Length > (int)_CardData.BackgroundAsset);
@@ -52,6 +55,9 @@ public partial class CardBase : MarginContainer
 
 		var abilityLabel = (Label)this.FindChild("Label_Ability", true);
 		abilityLabel.Text = _CardData.AbilityText;
+
+
+		
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
