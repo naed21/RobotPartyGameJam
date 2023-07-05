@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RobotPartyGameJam": {
+      "commandName": "Project",
+      "remoteDebugEnabled": false,
+      "authenticationMode": "None",
+      "remoteDebugMachine": "tcp://127.0.0.1:6006"
+    }
+  }
+}

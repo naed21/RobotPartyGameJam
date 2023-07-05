@@ -1,7 +1,7 @@
 using Godot;
-using Godot.Collections;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace RobotPartyGameJam.Scripts
 {
@@ -49,9 +49,33 @@ namespace RobotPartyGameJam.Scripts
 			OnDiscardModifyEffect = onOtherDiscardEffect;
 		}
 
-		public CardData(string[] cvs)
+		public CardData(string[] header, string[] data)
 		{
-			
+			Dictionary<string, PropertyInfo> propDict = new Dictionary<string, PropertyInfo>();
+
+			foreach (var prop in this.GetType().GetProperties())
+			{
+				propDict.Add(prop.Name, prop);
+			}
+
+			for (int x = 0; x < header.Length; x++)
+			{
+				var prop = propDict[header[x]];
+				if (prop.PropertyType.IsEnum)
+				{
+					object enumValue = null;
+					Enum.TryParse(prop.PropertyType, data[x], true, out enumValue);
+					prop.SetValue(this, enumValue);
+				}
+				else if(prop.PropertyType == typeof(int))
+				{
+					int temp = 0;
+					int.TryParse(data[x], out temp);
+					prop.SetValue(this, temp);
+				}
+				else //if (prop.PropertyType == typeof(string))
+					prop.SetValue(this, data[x]);
+			}
 		}
 
 		public string [] GetCsvHeader()
@@ -68,14 +92,14 @@ namespace RobotPartyGameJam.Scripts
 		public string[] ToCsv()
 		{
 			List<string> values = new List<string>();
-			//Converts the data into a dictionary string
-			foreach(var prop in this.GetType().GetProperties())
+			//Converts the data into a string list
+			foreach (var prop in this.GetType().GetProperties())
 			{
-				if(prop.GetType() == typeof(Enum))
+				if(prop.PropertyType.IsEnum)
 				{
-					values.Add(Enum.GetName(prop.GetType(), prop.GetValue(this)));
+					values.Add(Enum.GetName(prop.PropertyType, prop.GetValue(this)));
 				}
-				else //if(prop.GetType() == typeof(string))
+				else //if(prop.PropertyType == typeof(string))
 				{
 					values.Add(prop.GetValue(this).ToString());
 				}

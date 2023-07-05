@@ -84,30 +84,54 @@ namespace RobotPartyGameJam.Scripts
 			return null;
 		}
 
-		private static Dictionary<int, CardData> LoadCardDataFromFile(string filePath)
+		//private static bool AreStringArraysTheSame(string[] a, string[] b)
+		//{
+		//	if (a.Length != b.Length)
+		//		return false;
+
+		//	for(int x = 0; x < a.Length; x++)
+		//	{
+		//		if (a[x] != b[x]) 
+		//			return false;
+		//	}
+
+		//	return true;
+		//}
+
+		public static Dictionary<int, CardData> LoadCardDataFromFile(string filePath)
 		{
 			Dictionary<int, CardData> cardList = new Dictionary<int, CardData>();
 
 			bool firstLine = true;
+			string[] header = new string[0];
 			using (var file = FileAccess.Open(filePath, FileAccess.ModeFlags.Read))
 			{
 				//loop forever until broken
 				while(true)
 				{
-					var card = file.GetCsvLine();
-					if (card.Length == 0)
-						break;
+					var cardText = file.GetCsvLine();
 
-					//First line is column name, skip
+					//empty line
+					if (cardText[0] == "")
+						break;
+					
+					//if (AreStringArraysTheSame(cardText, header))
+					//	break;
+
+					//GD.Print("Loaded Length: " + cardText.Length);
+
+					//First line is column header
 					if(firstLine)
 					{
 						firstLine = false;
+						header = cardText;
 						continue;
 					}
 
-					var newCard = new CardData(card);
+					var newCard = new CardData(header, cardText);
 
-					cardList.Add((int)newCard.CardReference, newCard);
+					if(!cardList.ContainsKey((int)newCard.CardReference))
+						cardList.Add((int)newCard.CardReference, newCard);
 				}
 
 				return cardList;

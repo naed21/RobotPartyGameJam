@@ -11,7 +11,7 @@ public partial class CardBase : MarginContainer
 	public override void _Ready()
 	{
 		//TEST
-		CardHelper.ExportToCsv();
+		//CardHelper.ExportToCsv();
 
 		_CardData = CardHelper.GetCard(CardReference.Test);
 
@@ -63,6 +63,10 @@ public partial class CardBase : MarginContainer
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-	
+		if(Input.IsMouseButtonPressed(MouseButton.Left))
+		{
+			//CardHelper.ExportToCsv();
+			CardHelper.LoadCardDataFromFile("res://Cards/CardDataCsv.txt");
+		}
 	}
 }
