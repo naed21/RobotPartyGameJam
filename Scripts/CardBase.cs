@@ -6,6 +6,8 @@ using System.Diagnostics;
 public partial class CardBase : MarginContainer
 {
 	CardData _CardData;
+
+	CardReference _CardReference { get; set; }
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -13,7 +15,14 @@ public partial class CardBase : MarginContainer
 		//TEST
 		//CardHelper.ExportToCsv();
 
-		_CardData = CardHelper.GetCard(CardReference.Test);
+		//Init(CardReference.Test);
+	}
+
+	public void Init(CardReference reference)
+	{
+		_CardReference = reference;
+
+		_CardData = CardHelper.GetCard(_CardReference);
 
 		//Stops the code here if we mess up data entry
 		Debug.Assert(CardHelper.Arts.Length > (int)_CardData.BackgroundAsset);
@@ -22,7 +31,7 @@ public partial class CardBase : MarginContainer
 
 		var backgroundAsset = CardHelper.Arts[(int)_CardData.BackgroundAsset];
 		var backgroundTexture = ResourceLoader.Load<Texture2D>(backgroundAsset);
-		if(backgroundTexture == null)
+		if (backgroundTexture == null)
 			GD.Print("No background: " + _CardData.BackgroundAsset);
 		var backgroundSprite = (Sprite2D)this.FindChild("Background", false);
 		backgroundSprite.Texture = backgroundTexture;
@@ -55,9 +64,6 @@ public partial class CardBase : MarginContainer
 
 		var abilityLabel = (Label)this.FindChild("Label_Ability", true);
 		abilityLabel.Text = _CardData.AbilityText;
-
-
-		
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.

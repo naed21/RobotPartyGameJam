@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://cs47advuga7ca"]
+
+[ext_resource type="Script" path="res://Scripts/CardField.cs" id="1_8uiks"]
+[ext_resource type="Texture2D" uid="uid://ksa5k5iho8ii" path="res://Assets/magiccardspack/water/water_bg.PNG" id="2_ugrx5"]
+
+[node name="CardField" type="Node2D"]
+script = ExtResource("1_8uiks")
+
+[node name="Background" type="NinePatchRect" parent="."]
+z_index = -1
+offset_left = 1152.0
+offset_top = 1.0
+offset_right = 1799.0
+offset_bottom = 1152.0
+rotation = 1.5708
+texture = ExtResource("2_ugrx5")
+
+[node name="Cards" type="Node2D" parent="."]

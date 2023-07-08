@@ -10,8 +10,8 @@ colors = PackedColorArray(0, 0, 0, 1, 0.372549, 0.372549, 0.372549, 1)
 gradient = SubResource("Gradient_c0agv")
 
 [node name="CardBase" type="MarginContainer"]
-offset_right = 250.0
-offset_bottom = 350.0
+offset_right = 268.0
+offset_bottom = 362.0
 pivot_offset = Vector2(125, 175)
 script = ExtResource("1_qqpa4")
 

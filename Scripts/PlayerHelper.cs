@@ -71,8 +71,8 @@ namespace RobotPartyGameJam.Scripts
 
 					var newPlayer = new CardData(header, playerText);
 
-					if (!playerList.ContainsKey((int)newPlayer.PlayerReference))
-						playerList.Add((int)newPlayer.PlayerReference, newPlayer);
+					//if (!playerList.ContainsKey((int)newPlayer.PlayerReference))
+						//playerList.Add((int)newPlayer.PlayerReference, newPlayer);
 				}
 
 				return playerList;

@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://cs47advuga7ca"]
-
-[ext_resource type="Script" path="res://Scripts/DeanTest.cs" id="1_ttpxo"]
-
-[node name="DeanTest_root" type="Node2D"]
-script = ExtResource("1_ttpxo")
