@@ -10,8 +10,9 @@ colors = PackedColorArray(0, 0, 0, 1, 0.372549, 0.372549, 0.372549, 1)
 gradient = SubResource("Gradient_c0agv")
 
 [node name="CardBase" type="MarginContainer"]
-offset_right = 268.0
-offset_bottom = 362.0
+custom_minimum_size = Vector2(250, 350)
+offset_right = 253.0
+offset_bottom = 350.0
 pivot_offset = Vector2(125, 175)
 script = ExtResource("1_qqpa4")
 
@@ -32,7 +33,7 @@ theme_override_constants/margin_top = 25
 layout_mode = 2
 
 [node name="MarginCon_LeftGap" type="MarginContainer" parent="VBoxContainer/HBoxCon_TopBar"]
-custom_minimum_size = Vector2(25, 0)
+custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
 
 [node name="MarginContainer2" type="MarginContainer" parent="VBoxContainer/HBoxCon_TopBar"]
@@ -73,7 +74,7 @@ texture = SubResource("GradientTexture1D_8djvp")
 layout_mode = 2
 
 [node name="Label_Name" type="Label" parent="VBoxContainer/HBoxCon_TopBar/MarginCon_Name/CenterContainer"]
-custom_minimum_size = Vector2(145, 0)
+custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "A very loing name for a card yo"
@@ -81,7 +82,7 @@ horizontal_alignment = 1
 autowrap_mode = 1
 
 [node name="MarginCon_RightGap" type="MarginContainer" parent="VBoxContainer/HBoxCon_TopBar"]
-custom_minimum_size = Vector2(30, 0)
+custom_minimum_size = Vector2(25, 0)
 layout_mode = 2
 
 [node name="MarginCon_MidGap" type="MarginContainer" parent="VBoxContainer"]
@@ -111,7 +112,7 @@ theme_override_constants/margin_top = 25
 layout_mode = 2
 
 [node name="MarginCon_LeftGap" type="MarginContainer" parent="VBoxContainer/HBoxCon_BottomBar"]
-custom_minimum_size = Vector2(30, 0)
+custom_minimum_size = Vector2(25, 0)
 layout_mode = 2
 
 [node name="MarginCon_Name" type="MarginContainer" parent="VBoxContainer/HBoxCon_BottomBar"]
@@ -127,10 +128,10 @@ layout_mode = 2
 
 [node name="Label_Ability" type="Label" parent="VBoxContainer/HBoxCon_BottomBar/MarginCon_Name/CenterContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 20
 text = "Test Ability
 Test 2"
 
 [node name="MarginCon_RightGap" type="MarginContainer" parent="VBoxContainer/HBoxCon_BottomBar"]
-custom_minimum_size = Vector2(30, 0)
+custom_minimum_size = Vector2(25, 0)
 layout_mode = 2

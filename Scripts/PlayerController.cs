@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static RobotPartyGameJam.Scripts.CardField;
 
 namespace RobotPartyGameJam.Scripts
 {
@@ -11,9 +12,9 @@ namespace RobotPartyGameJam.Scripts
 	{
 		PlayerData _PlayerData;
 
-		CardReference[] _Deck;
-		CardReference[] _DiscardPile;
-		CardReference[] _Hand;
+		CardData[] _Deck;
+		CardData[] _DiscardPile;
+		CardData[] _Hand;
 		int _MaxHandSize;
 
 		RandomNumberGenerator _Rand = new RandomNumberGenerator();
@@ -27,6 +28,41 @@ namespace RobotPartyGameJam.Scripts
 			InitializeDeck();
 
 			_Rand.Randomize();
+		}
+
+		public void ProcessHumanInput(double delta, BattleState state, Action<BattleState, BattleState> changeStateAction)
+		{
+			if(state == BattleState.Dialog)
+			{
+				//Click to skip dialog
+			}
+			else if(state == BattleState.Draw)
+			{
+				//Wait for draw animation or shuffle animation if needed
+				InternalWait(500);
+
+				Draw(1, true);
+
+				InternalWait(500);
+
+				changeStateAction(state, BattleState.Play);
+			}
+			else if(state == BattleState.Play)
+			{
+				//handle input for playing cards
+			}
+			else if(state == BattleState.End)
+			{
+				//Check cards in hand if they have end of turn effects
+
+				changeStateAction(state, BattleState.Switch);
+
+			}
+		}
+
+		private async void InternalWait(int milliseconds)
+		{
+			await Task.Delay(milliseconds);
 		}
 
 		public void Draw(int amount, bool shuffleDiscardPileIntoDeckWhenEmpty)
@@ -43,7 +79,7 @@ namespace RobotPartyGameJam.Scripts
 				else if (shuffleDiscardPileIntoDeckWhenEmpty && _DiscardPile.Length > 0)
 				{
 					deckList.AddRange(_DiscardPile);
-					_DiscardPile = new CardReference[0];
+					_DiscardPile = new CardData[0];
 
 					_Deck = deckList.ToArray();
 					ShuffleDeck();
@@ -67,7 +103,7 @@ namespace RobotPartyGameJam.Scripts
 		/// </summary>
 		public void InitializeDeck()
 		{
-			_Deck = (CardReference[])_PlayerData.Deck.Clone();
+			_Deck = (CardData[])_PlayerData.Deck.Clone();
 
 			ShuffleDeck();
 		}
@@ -77,7 +113,7 @@ namespace RobotPartyGameJam.Scripts
 		/// </summary>
 		public void ShuffleDeck()
 		{
-			CardReference[] temp = new CardReference[_Deck.Length];
+			CardData[] temp = new CardData[_Deck.Length];
 			var deckList = _Deck.ToList();
 			for(int x  = 0; x < temp.Length; x++)
 			{
