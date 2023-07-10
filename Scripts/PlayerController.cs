@@ -19,18 +19,21 @@ namespace RobotPartyGameJam.Scripts
 
 		RandomNumberGenerator _Rand = new RandomNumberGenerator();
 
+		Node2D _ParentNode;
+
 		//This class handles stuff about the Player or AI during battles
-		public PlayerController(PlayerData playerData) 
+		public PlayerController(PlayerData playerData, Node2D parent) 
 		{
 			_PlayerData = playerData;
 			_MaxHandSize = _PlayerData.MaxHandSize;
+			_ParentNode = parent;
 
 			InitializeDeck();
 
 			_Rand.Randomize();
 		}
 
-		public void ProcessHumanInput(double delta, BattleState state, Action<BattleState, BattleState> changeStateAction)
+		public void ProcessHuman(double delta, BattleState state, Action<BattleState, BattleState> changeStateAction)
 		{
 			if(state == BattleState.Dialog)
 			{
@@ -60,6 +63,36 @@ namespace RobotPartyGameJam.Scripts
 			}
 		}
 
+		public void ProcessComputer(double delta, BattleState state, Action<BattleState, BattleState> changeStateAction)
+		{
+			if (state == BattleState.Dialog)
+			{
+				//Click to skip dialog
+			}
+			else if (state == BattleState.Draw)
+			{
+				//Wait for draw animation or shuffle animation if needed
+				InternalWait(500);
+
+				Draw(1, true);
+
+				InternalWait(500);
+
+				changeStateAction(state, BattleState.Play);
+			}
+			else if (state == BattleState.Play)
+			{
+				//handle input for playing cards
+			}
+			else if (state == BattleState.End)
+			{
+				//Check cards in hand if they have end of turn effects
+
+				changeStateAction(state, BattleState.Switch);
+
+			}
+		}
+
 		private async void InternalWait(int milliseconds)
 		{
 			await Task.Delay(milliseconds);
@@ -75,6 +108,7 @@ namespace RobotPartyGameJam.Scripts
 				if(deckList.Count > 0)
 				{
 					handList.Add(deckList[0]);
+					deckList.RemoveAt(0);
 				}
 				else if (shuffleDiscardPileIntoDeckWhenEmpty && _DiscardPile.Length > 0)
 				{
@@ -86,13 +120,16 @@ namespace RobotPartyGameJam.Scripts
 
 					deckList = _Deck.ToList();
 					handList.Add(deckList[0]);
+					deckList.RemoveAt(0);
 				}
 				else
 				{
-					//No cards, can't do anything
 					break;
 				}
 			}
+
+			//Tells our custom event in the DeckTextureButton that the deck size changed
+			_ParentNode.EmitSignal("DeckChanged", deckList.Count);
 
 			_Hand = handList.ToArray();
 			_Deck = deckList.ToArray();

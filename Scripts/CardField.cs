@@ -11,7 +11,7 @@ namespace RobotPartyGameJam.Scripts
 		private Node _CardsNode;
 
 		[Export]
-		private Vector2 _CardSize = new Vector2(125, 175);
+		public Vector2 CardSize = new Vector2(125, 175);
 
 		private PlayerController _PlayerController;
 		private PlayerController _OpponentPlayerController;
@@ -41,10 +41,10 @@ namespace RobotPartyGameJam.Scripts
 			_CardsNode = this.FindChild("Cards");
 		}
 
-		public void Init(PlayerData challenger, PlayerData opponent)
+		public void Init(PlayerData player, PlayerData opponent)
 		{
-			_PlayerController = new PlayerController(challenger);
-			_OpponentPlayerController = new PlayerController(opponent);
+			_PlayerController = new PlayerController(player, this);
+			_OpponentPlayerController = new PlayerController(opponent, this);
 		}
 
 		// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -52,11 +52,11 @@ namespace RobotPartyGameJam.Scripts
 		{
 			if (_CurrentTurn == TurnState.Player)
 			{
-
+				_PlayerController.ProcessHuman(delta, _BattleState, ChangeState);
 			}
 			else if (_CurrentTurn == TurnState.Opponent)
 			{
-
+				_OpponentPlayerController.ProcessComputer(delta, _BattleState, ChangeState);
 			}
 			else
 			{
@@ -94,7 +94,7 @@ namespace RobotPartyGameJam.Scripts
 				CardBase cardbase = _CardBaseScene.Instantiate<CardBase>(PackedScene.GenEditState.Instance);
 				cardbase.Init(CardReference.Test);
 				cardbase.SetGlobalPosition(this.GetGlobalMousePosition());
-				cardbase.Scale *= _CardSize / cardbase.GetRect().Size;
+				cardbase.Scale *= CardSize / cardbase.GetRect().Size;
 
 				_CardsNode.AddChild(cardbase);
 			}
