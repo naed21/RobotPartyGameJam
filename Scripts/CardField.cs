@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Reflection.Metadata;
 
 namespace RobotPartyGameJam.Scripts
 {
@@ -35,11 +36,29 @@ namespace RobotPartyGameJam.Scripts
 			Switch
 		}
 
+		Vector2 _CenterCardOval;
+		float _Horizontal;
+		float _Vertical;
+
+		float _Angle;
+		Vector2 _OvalAngleVect;
+
+
 		// Called when the node enters the scene tree for the first time.
 		public override void _Ready()
 		{
 			_CardsNode = this.FindChild("Cards");
+
+			_CenterCardOval = GetViewportRect().Size * new Vector2(0.5f, 1.3f);
+			_Horizontal = GetViewportRect().Size.X * 0.45f; //%
+			_Vertical = GetViewportRect().Size.Y * 0.4f;
+
+			_Angle = Mathf.DegToRad(90) - 0.5f;
+			
+
 		}
+
+
 
 		public void Init(PlayerData player, PlayerData opponent)
 		{
@@ -84,19 +103,35 @@ namespace RobotPartyGameJam.Scripts
 			}
 		}
 
+
+
 		public void DrawCard()
 		{
 			//Testing
 			if (Input.IsKeyPressed(Key.Key1))
 			{
+
 				//Spawn a card
 				//var testCard = CardHelper.GetCard(CardReference.Test);
 				CardBase cardbase = _CardBaseScene.Instantiate<CardBase>(PackedScene.GenEditState.Instance);
 				cardbase.Init(CardReference.Test);
-				cardbase.SetGlobalPosition(this.GetGlobalMousePosition());
+				//cardbase.SetGlobalPosition(this.GetGlobalMousePosition());
+
+				//TODO: Change angle based on number of cards in hand
+				_Angle += 0.25f;
+				_OvalAngleVect = new Vector2(_Horizontal * (float)Math.Cos(_Angle), -_Vertical * (float)Math.Sin(_Angle));
+
+				cardbase.RotationDegrees = (90 - Mathf.RadToDeg(_Angle)) / 4;
+
+				cardbase.GlobalPosition = _CenterCardOval + _OvalAngleVect - cardbase.GetRect().Size;
 				cardbase.Scale *= CardSize / cardbase.GetRect().Size;
 
 				_CardsNode.AddChild(cardbase);
+
+				
+
+				//var xCoord = radius1 * Math.Cos(angle);
+				//var yCoord = radius2 * Math.Sin(angle);
 			}
 		}
 	}
