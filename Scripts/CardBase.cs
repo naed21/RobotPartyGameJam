@@ -6,8 +6,6 @@ using System.Diagnostics;
 public partial class CardBase : MarginContainer
 {
 	CardData _CardData;
-
-	CardReference _CardReference { get; set; }
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -18,11 +16,17 @@ public partial class CardBase : MarginContainer
 		//Init(CardReference.Test);
 	}
 
-	public void Init(CardReference reference)
+	public int GetId()
 	{
-		_CardReference = reference;
+		if (_CardData != null)
+			return _CardData.Id;
 
-		_CardData = CardHelper.GetCard(_CardReference);
+		return -1;
+	}
+
+	public void Init(CardData cardData)
+	{
+		_CardData = cardData;//CardHelper.GetCard(_CardReference);
 
 		//Stops the code here if we mess up data entry
 		Debug.Assert(CardHelper.Arts.Length > (int)_CardData.BackgroundAsset);

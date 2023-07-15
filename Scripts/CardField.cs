@@ -1,5 +1,7 @@
 using Godot;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection.Metadata;
 
 namespace RobotPartyGameJam.Scripts
@@ -19,6 +21,8 @@ namespace RobotPartyGameJam.Scripts
 
 		private TurnState _CurrentTurn = TurnState.None;
 		private BattleState _BattleState = BattleState.Dialog;
+
+		private List<CardBase> _CardList = new List<CardBase>();
 
 		enum TurnState
 		{
@@ -43,6 +47,11 @@ namespace RobotPartyGameJam.Scripts
 		float _Angle;
 		Vector2 _OvalAngleVect;
 
+		//Keep track of the currently in-use cardIds
+		//Used to make sure we issue a unique id
+		List<int> _IdTracker = new List<int>();
+
+		int _TurnNumber = 0;
 
 		// Called when the node enters the scene tree for the first time.
 		public override void _Ready()
@@ -55,10 +64,7 @@ namespace RobotPartyGameJam.Scripts
 
 			_Angle = Mathf.DegToRad(90) - 0.5f;
 			
-
 		}
-
-
 
 		public void Init(PlayerData player, PlayerData opponent)
 		{
@@ -71,11 +77,11 @@ namespace RobotPartyGameJam.Scripts
 		{
 			if (_CurrentTurn == TurnState.Player)
 			{
-				_PlayerController.ProcessHuman(delta, _BattleState, ChangeState);
+				_PlayerController.ProcessHuman(delta, _TurnNumber, _BattleState, ChangeState);
 			}
 			else if (_CurrentTurn == TurnState.Opponent)
 			{
-				_OpponentPlayerController.ProcessComputer(delta, _BattleState, ChangeState);
+				_OpponentPlayerController.ProcessComputer(delta, _TurnNumber, _BattleState, ChangeState);
 			}
 			else
 			{
@@ -100,38 +106,113 @@ namespace RobotPartyGameJam.Scripts
 					_CurrentTurn = TurnState.Opponent;
 				else if (_CurrentTurn == TurnState.Opponent)
 					_CurrentTurn = TurnState.Player;
+
+				_TurnNumber++;
 			}
 		}
 
-
-
-		public void DrawCard()
+		/// <summary>
+		/// Increment Ids until we get over 100, then check to see if there are removed ids to reuse instead
+		/// </summary>
+		/// <returns></returns>
+		private int GetId()
 		{
-			//Testing
-			if (Input.IsKeyPressed(Key.Key1))
+			if (_IdTracker.Count == 0)
 			{
+				_IdTracker.Add(1);
+				return 1;
+			}
+			else if(_IdTracker.Count < 100)
+			{
+				var max = _IdTracker.Max() + 1;
+				_IdTracker.Add(max);
+				return max;
+			}
+			else
+			{
+				var min = _IdTracker.Min() - 1;
+				if (min > 0)
+				{
+					_IdTracker.Add(min);
+					return min;
+				}
 
-				//Spawn a card
-				//var testCard = CardHelper.GetCard(CardReference.Test);
-				CardBase cardbase = _CardBaseScene.Instantiate<CardBase>(PackedScene.GenEditState.Instance);
-				cardbase.Init(CardReference.Test);
-				//cardbase.SetGlobalPosition(this.GetGlobalMousePosition());
+				var max = _IdTracker.Max() + 1;
+				_IdTracker.Add(max);
+				return max;
+			}
+		}
 
-				//TODO: Change angle based on number of cards in hand
-				_Angle += 0.25f;
-				_OvalAngleVect = new Vector2(_Horizontal * (float)Math.Cos(_Angle), -_Vertical * (float)Math.Sin(_Angle));
+		private void RemoveId(int id)
+		{
+			for (int x = 0; x < _IdTracker.Count; x++)
+				if (_IdTracker[x] == id)
+				{
+					_IdTracker.RemoveAt(x);
+					break;
+				}
+		}
 
-				cardbase.RotationDegrees = (90 - Mathf.RadToDeg(_Angle)) / 4;
+		public void DrawCard(CardData card)
+		{
+			//Spawn a card
+			if (card.Id < 1)
+			{
+				var id = GetId();
+				card.Id = id;
+			}
 
-				cardbase.GlobalPosition = _CenterCardOval + _OvalAngleVect - cardbase.GetRect().Size;
-				cardbase.Scale *= CardSize / cardbase.GetRect().Size;
+			CardBase cardbase = _CardBaseScene.Instantiate<CardBase>(PackedScene.GenEditState.Instance);
+			cardbase.Init(card);
+			//cardbase.SetGlobalPosition(this.GetGlobalMousePosition());
 
-				_CardsNode.AddChild(cardbase);
+			//TODO: Change angle based on number of cards in hand
+			_Angle += 0.25f;
+			_OvalAngleVect = new Vector2(_Horizontal * (float)Math.Cos(_Angle), -_Vertical * (float)Math.Sin(_Angle));
 
-				
+			cardbase.RotationDegrees = (90 - Mathf.RadToDeg(_Angle)) / 4;
 
-				//var xCoord = radius1 * Math.Cos(angle);
-				//var yCoord = radius2 * Math.Sin(angle);
+			cardbase.GlobalPosition = _CenterCardOval + _OvalAngleVect - cardbase.GetRect().Size;
+			cardbase.Scale *= CardSize / cardbase.GetRect().Size;
+
+			_CardsNode.AddChild(cardbase);
+		}
+
+		/// <summary>
+		/// Card was moved to the discard pile
+		/// </summary>
+		/// <param name="cardId"></param>
+		public void DiscardCard(int cardId)
+		{
+			//todo, play an effect?
+			foreach (var card in _CardList)
+			{
+				if (card.GetId() == cardId)
+				{
+					_CardsNode.RemoveChild(card);
+					card.Dispose();
+					break;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Card was removed from the game, we won't see it again
+		/// </summary>
+		/// <param name="cardId"></param>
+		public void DestroyCard(int cardId)
+		{
+			//todo, play an effect?
+			foreach(var card in _CardList)
+			{
+				if (card.GetId() == cardId)
+				{
+					RemoveId(cardId);
+
+					_CardsNode.RemoveChild(card);
+					card.Dispose();
+					break;
+				}
 			}
 		}
 	}

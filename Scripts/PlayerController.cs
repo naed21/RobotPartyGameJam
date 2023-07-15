@@ -15,17 +15,17 @@ namespace RobotPartyGameJam.Scripts
 		CardData[] _Deck;
 		CardData[] _DiscardPile;
 		CardData[] _Hand;
-		int _MaxHandSize;
+		int _CurrentHealth;
 
 		RandomNumberGenerator _Rand = new RandomNumberGenerator();
 
-		Node2D _ParentNode;
+		CardField _ParentNode;
 
 		//This class handles stuff about the Player or AI during battles
-		public PlayerController(PlayerData playerData, Node2D parent) 
+		public PlayerController(PlayerData playerData, CardField parent) 
 		{
 			_PlayerData = playerData;
-			_MaxHandSize = _PlayerData.MaxHandSize;
+			_CurrentHealth = _PlayerData.Health;
 			_ParentNode = parent;
 
 			InitializeDeck();
@@ -33,7 +33,7 @@ namespace RobotPartyGameJam.Scripts
 			_Rand.Randomize();
 		}
 
-		public void ProcessHuman(double delta, BattleState state, Action<BattleState, BattleState> changeStateAction)
+		public void ProcessHuman(double delta, int turnNum, BattleState state, Action<BattleState, BattleState> changeStateAction)
 		{
 			if(state == BattleState.Dialog)
 			{
@@ -44,7 +44,8 @@ namespace RobotPartyGameJam.Scripts
 				//Wait for draw animation or shuffle animation if needed
 				InternalWait(500);
 
-				Draw(1, true);
+				DiscardHand();
+				Draw(5, true);
 
 				InternalWait(500);
 
@@ -63,7 +64,7 @@ namespace RobotPartyGameJam.Scripts
 			}
 		}
 
-		public void ProcessComputer(double delta, BattleState state, Action<BattleState, BattleState> changeStateAction)
+		public void ProcessComputer(double delta, int turnNum, BattleState state, Action<BattleState, BattleState> changeStateAction)
 		{
 			if (state == BattleState.Dialog)
 			{
@@ -72,11 +73,12 @@ namespace RobotPartyGameJam.Scripts
 			else if (state == BattleState.Draw)
 			{
 				//Wait for draw animation or shuffle animation if needed
-				InternalWait(500);
+				//InternalWait(500);
 
-				Draw(1, true);
+				DiscardHand();
+				Draw(5, true);
 
-				InternalWait(500);
+				//InternalWait(500);
 
 				changeStateAction(state, BattleState.Play);
 			}
@@ -93,6 +95,40 @@ namespace RobotPartyGameJam.Scripts
 			}
 		}
 
+		private void DiscardHand()
+		{
+			var tempDiscard = _DiscardPile.ToList();
+			var tempHand = new List<CardData>();
+
+			int totalDraw = 0;
+			List<int> discardedCardIds = new List<int>();
+
+			foreach(var card in _Hand)
+			{
+				if(card.OnDiscardEffect == OnDiscardEffect.Draw)
+				{
+					totalDraw += card.DiscardPower;
+				}
+				else if(card.OnDiscardEffect == OnDiscardEffect.ModifyHealth)
+				{
+					_CurrentHealth += card.DiscardPower;
+				}
+
+				discardedCardIds.Add(card.Id);
+				tempDiscard.Add(card);
+			}
+
+			foreach (var id in discardedCardIds)
+				_ParentNode.DiscardCard(id);
+
+			_DiscardPile = tempDiscard.ToArray();
+
+			_Hand = new CardData[0];
+
+			if (totalDraw > 0)
+				Draw(totalDraw, true);
+		}
+
 		private async void InternalWait(int milliseconds)
 		{
 			await Task.Delay(milliseconds);
@@ -102,12 +138,15 @@ namespace RobotPartyGameJam.Scripts
 		{
 			var handList = _Hand.ToList();
 			var deckList = _Deck.ToList();
+			CardData newCard;
 			
 			for(int x = 0; x < amount; x++)
 			{
 				if(deckList.Count > 0)
 				{
-					handList.Add(deckList[0]);
+					newCard = deckList[0];
+					handList.Add(newCard);
+					_ParentNode.DrawCard(newCard);
 					deckList.RemoveAt(0);
 				}
 				else if (shuffleDiscardPileIntoDeckWhenEmpty && _DiscardPile.Length > 0)
@@ -119,7 +158,9 @@ namespace RobotPartyGameJam.Scripts
 					ShuffleDeck();
 
 					deckList = _Deck.ToList();
-					handList.Add(deckList[0]);
+					newCard = deckList[0];
+					handList.Add(newCard);
+					_ParentNode.DrawCard(newCard);
 					deckList.RemoveAt(0);
 				}
 				else
@@ -129,6 +170,7 @@ namespace RobotPartyGameJam.Scripts
 			}
 
 			//Tells our custom event in the DeckTextureButton that the deck size changed
+			//Currently just used when the deck is zero and it changes the texture
 			_ParentNode.EmitSignal("DeckChanged", deckList.Count);
 
 			_Hand = handList.ToArray();

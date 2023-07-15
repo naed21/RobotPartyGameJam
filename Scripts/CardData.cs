@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text.Json.Serialization;
 
 namespace RobotPartyGameJam.Scripts
 {
@@ -33,6 +34,10 @@ namespace RobotPartyGameJam.Scripts
 		public OnDiscardEffect OnDiscardEffect { get; set; }
 		public OnHeldEffect OnHeldEffect { get; set; }
 		public OnDiscardModifyEffect OnDiscardModifyEffect { get; set; }
+
+		[JsonIgnore]
+		//used to track cards between UI and player controller
+		public int Id { get; set; }
 
 		public CardData(CardReference cardReference, string name, int cost, string abilityText, ArtReference backgroundAsset, ArtReference middlegroundAsset, ArtReference foregroundAsset, OnPlayEffect onPlayEffect, OnDiscardEffect onDiscardEffect, OnHeldEffect onHeldEffect, OnDiscardModifyEffect onOtherDiscardEffect)
 		{
@@ -95,6 +100,10 @@ namespace RobotPartyGameJam.Scripts
 			//Converts the data into a string list
 			foreach (var prop in this.GetType().GetProperties())
 			{
+				//Hijacking the json ignore to also ignore the prop here
+				if (Attribute.IsDefined(prop, typeof(JsonIgnoreAttribute)))
+					continue;	
+				
 				if(prop.PropertyType.IsEnum)
 				{
 					values.Add(Enum.GetName(prop.PropertyType, prop.GetValue(this)));
