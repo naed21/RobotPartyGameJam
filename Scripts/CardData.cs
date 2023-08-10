@@ -118,5 +118,10 @@ namespace RobotPartyGameJam.Scripts
 			//return string.Join(',', values);
 			return values.ToArray();
 		}
+
+		public CardData Clone()
+		{
+			return (CardData)this.MemberwiseClone();
+		}
 	}
 }

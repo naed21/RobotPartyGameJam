@@ -97,6 +97,15 @@ namespace RobotPartyGameJam.Scripts
 
 		private void DiscardHand()
 		{
+			if (_DiscardPile == null)
+				_DiscardPile = new CardData[0];
+
+			if (_Hand == null)
+			{
+				_Hand = new CardData[0];
+				return;
+			}
+			
 			var tempDiscard = _DiscardPile.ToList();
 			var tempHand = new List<CardData>();
 
@@ -182,7 +191,12 @@ namespace RobotPartyGameJam.Scripts
 		/// </summary>
 		public void InitializeDeck()
 		{
-			_Deck = (CardData[])_PlayerData.Deck.Clone();
+			_Deck = new CardData[_PlayerData.Deck.Length];
+
+			for (int x = 0; x < _PlayerData.Deck.Length; x++)
+			{
+				_Deck[x] = CardHelper.GetCard(_PlayerData.Deck[x]).Clone();
+			}
 
 			ShuffleDeck();
 		}

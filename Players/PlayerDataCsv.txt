@@ -1,0 +1,3 @@
+PlayerReference,Name,Health,Strength,Endurance,MaxMana,MaxHandSize,OnJoinEffects,OnJoinAmount,OnJoinCards
+Test,TestName,10,1,1,5,5,Health;MaxMana,1;1,Test;Test
+Dummy,DummyName,10,1,1,5,5,Health;MaxMana,1;1,Test;Test

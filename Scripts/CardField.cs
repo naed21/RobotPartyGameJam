@@ -63,32 +63,48 @@ namespace RobotPartyGameJam.Scripts
 			_Vertical = GetViewportRect().Size.Y * 0.4f;
 
 			_Angle = Mathf.DegToRad(90) - 0.5f;
-			
+
+			//TODO: pick the players that are in the battle somewhere?
+			//Init(PlayerReference.Test, PlayerReference.Dummy);
 		}
 
-		public void Init(PlayerData player, PlayerData opponent)
+		public void Init(PlayerReference player, PlayerReference opponent)
 		{
-			_PlayerController = new PlayerController(player, this);
-			_OpponentPlayerController = new PlayerController(opponent, this);
+			var playerData = PlayerHelper.PlayerDict[(int)player];
+			playerData.Deck = PlayerHelper.DeckDict[(int)player];
+
+			var opponentData = PlayerHelper.PlayerDict[(int)opponent];
+			opponentData.Deck = PlayerHelper.DeckDict[(int)opponent];
+
+			_PlayerController = new PlayerController(playerData, this);
+			_OpponentPlayerController = new PlayerController(opponentData, this);
 		}
 
 		// Called every frame. 'delta' is the elapsed time since the previous frame.
 		public override void _Process(double delta)
 		{
-			if (_CurrentTurn == TurnState.Player)
+			//testing, only do things after key press
+			if (Input.IsPhysicalKeyPressed(Key.F1))
 			{
-				_PlayerController.ProcessHuman(delta, _TurnNumber, _BattleState, ChangeState);
+				Init(PlayerReference.Test, PlayerReference.Dummy);
 			}
-			else if (_CurrentTurn == TurnState.Opponent)
+			else if (Input.IsPhysicalKeyPressed(Key.F2))
 			{
-				_OpponentPlayerController.ProcessComputer(delta, _TurnNumber, _BattleState, ChangeState);
-			}
-			else
-			{
-				// dialog?
-				// How is dialog constructed? Does the opponent have all of the dialog?
-				//I guess just skip for now, go right to player's turn
-				ChangeState(BattleState.Dialog, BattleState.Switch);
+				if (_CurrentTurn == TurnState.Player)
+				{
+					_PlayerController.ProcessHuman(delta, _TurnNumber, _BattleState, ChangeState);
+				}
+				else if (_CurrentTurn == TurnState.Opponent)
+				{
+					_OpponentPlayerController.ProcessComputer(delta, _TurnNumber, _BattleState, ChangeState);
+				}
+				else
+				{
+					// dialog?
+					// How is dialog constructed? Does the opponent have all of the dialog?
+					//I guess just skip for now, go right to player's turn
+					ChangeState(BattleState.Dialog, BattleState.Switch);
+				}
 			}
 		}
 
@@ -106,6 +122,8 @@ namespace RobotPartyGameJam.Scripts
 					_CurrentTurn = TurnState.Opponent;
 				else if (_CurrentTurn == TurnState.Opponent)
 					_CurrentTurn = TurnState.Player;
+
+				_BattleState = BattleState.Draw;
 
 				_TurnNumber++;
 			}
@@ -217,3 +235,5 @@ namespace RobotPartyGameJam.Scripts
 		}
 	}
 }
+
+
